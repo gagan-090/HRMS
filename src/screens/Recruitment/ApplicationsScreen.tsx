@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
-
+import LinearGradient from 'react-native-linear-gradient';
 // Define colors
 const colors = {
   primaryBackground: '#F3F4F6',
@@ -204,27 +204,7 @@ const Breadcrumbs = () => {
 
 // --- Title Section Component ---
 const TitleSection = () => {
-  return (
-    <View style={styles.titleSection}>
-      <Text style={styles.titleText}>Job Applications</Text>
-      <View style={styles.actionButtons}>
-        <TouchableOpacity style={styles.newAppButton}>
-          <PlusIcon color={colors.whiteText} size={16} style={styles.buttonIcon} />
-          <Text style={styles.newAppButtonText}>New Application</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.exportButton}>
-          <DownloadIcon color={colors.secondaryText} size={16} style={styles.buttonIcon} />
-          <Text style={styles.exportButtonText}>Export</Text>
-          <ChevronDownIcon color={colors.secondaryText} size={16} style={styles.buttonIcon} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bulkButton}>
-          <MoreHorizontalIcon color={colors.secondaryText} size={16} style={styles.buttonIcon} />
-          <Text style={styles.bulkButtonText}>Bulk Actions</Text>
-          <ChevronDownIcon color={colors.secondaryText} size={16} style={styles.buttonIcon} />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+ 
 };
 
 // --- Filters Component ---

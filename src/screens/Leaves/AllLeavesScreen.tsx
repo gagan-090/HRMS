@@ -10,8 +10,9 @@ import {
   Dimensions,
   
 } from 'react-native';
-import Svg, { Path, Circle, Stop, G, Rect, LinearGradient } from 'react-native-svg';
+import Svg, { Path, Circle, Stop, G, Rect, } from 'react-native-svg';
 import { Platform } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 // Define colors
 const colors = {
   primaryBackground: '#F3F4F6',
@@ -166,36 +167,7 @@ const Header = ({ navigation }) => {
     }
   };
 
-  return (
-    <View style={styles.headerContainer}>
-      <TouchableOpacity style={styles.iconButton} onPress={onMenuPress}>
-        <HamburgerIcon color={colors.bellChevronIcon} size={28} />
-      </TouchableOpacity>
-      <View style={styles.searchBarContainer}>
-        <SearchIcon color={colors.searchIcon} size={20} style={styles.searchIcon} />
-        <TextInput
-          placeholder="Search employees, documents..."
-          placeholderTextColor={colors.searchIcon}
-          style={styles.searchInput}
-        />
-      </View>
-      <View style={styles.userProfileContainer}>
-        <TouchableOpacity style={styles.iconButton}>
-          <BellIcon color={colors.bellChevronIcon} size={28} />
-        </TouchableOpacity>
-        <View style={styles.profileDetails}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>AS</Text>
-          </View>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>Advika Singh</Text>
-            <Text style={styles.userRole}>HR Admin</Text>
-          </View>
-          <ChevronDownIcon color={colors.bellChevronIcon} size={16} />
-        </View>
-      </View>
-    </View>
-  );
+ 
 };
 
 // --- Banner Component ---
@@ -268,7 +240,7 @@ const FilterBar = () => (
       />
     </View>
     <View style={[styles.inputContainer, { flex: 1, marginRight: 8 }]}>
-      <CalendarIcon color={colors.secondaryText} size={16} style={styles.inputIcon} />
+      <CalendarIcon color={colors.secondaryText} size={16} style={styles.searchIcon} />
       <TextInput
         placeholder="Date From"
         placeholderTextColor={colors.secondaryText}
@@ -276,7 +248,7 @@ const FilterBar = () => (
       />
     </View>
     <View style={[styles.inputContainer, { flex: 1, marginRight: 8 }]}>
-      <CalendarIcon color={colors.secondaryText} size={16} style={styles.inputIcon} />
+      <CalendarIcon color={colors.secondaryText} size={16} style={styles.searchIcon} />
       <TextInput
         placeholder="Date To"
         placeholderTextColor={colors.secondaryText}

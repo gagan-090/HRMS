@@ -10,7 +10,7 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
-import Svg, { Path, Circle, LinearGradient } from 'react-native-svg';
+import Svg, { Path, Circle,  } from 'react-native-svg';
 
 // Define colors
 const colors = {
@@ -118,54 +118,12 @@ const Header = ({ navigation }) => {
     }
   };
 
-  return (
-    <View style={styles.headerContainer}>
-      <TouchableOpacity style={styles.iconButton} onPress={onMenuPress}>
-        <HamburgerIcon color={colors.bellChevronIcon} size={28} />
-      </TouchableOpacity>
-      <View style={styles.searchBarContainer}>
-        <SearchIcon color={colors.searchIcon} size={20} style={styles.searchIcon} />
-        <TextInput
-          placeholder="Search employees, documents..."
-          placeholderTextColor={colors.searchIcon}
-          style={styles.searchInput}
-        />
-      </View>
-      <View style={styles.userProfileContainer}>
-        <TouchableOpacity style={styles.iconButton}>
-          <BellIcon color={colors.bellChevronIcon} size={28} />
-        </TouchableOpacity>
-        <View style={styles.profileDetails}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>AS</Text>
-          </View>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>Advika Singh</Text>
-            <Text style={styles.userRole}>HR Admin</Text>
-          </View>
-          <ChevronDownIcon color={colors.bellChevronIcon} size={16} />
-        </View>
-      </View>
-    </View>
-  );
+
 };
 
 // --- Banner Component ---
 const Banner = () => {
-  return (
-    <LinearGradient
-      colors={[colors.bannerGradientStart, colors.bannerGradientEnd]}
-      style={styles.bannerContainer}
-    >
-      <View style={styles.bannerContent}>
-        <UploadCloudIcon color={colors.bannerText} size={32} />
-        <View style={styles.bannerTextContainer}>
-          <Text style={styles.bannerTitle}>Import Employees</Text>
-          <Text style={styles.bannerSubtext}>Bulk upload employee data using CSV or Excel files</Text>
-        </View>
-      </View>
-    </LinearGradient>
-  );
+ 
 };
 
 // --- Important Instructions Card ---

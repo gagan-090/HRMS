@@ -134,36 +134,7 @@ const Header = ({ navigation }) => {
     }
   };
 
-  return (
-    <View style={styles.headerContainer}>
-      <TouchableOpacity style={styles.iconButton} onPress={onMenuPress}>
-        <HamburgerIcon color={colors.bellChevronIcon} size={28} />
-      </TouchableOpacity>
-      <View style={styles.searchBarContainer}>
-        <SearchIcon color={colors.searchIcon} size={20} style={styles.searchIcon} />
-        <TextInput
-          placeholder="Search employees, documents..."
-          placeholderTextColor={colors.searchIcon}
-          style={styles.searchInput}
-        />
-      </View>
-      <View style={styles.userProfileContainer}>
-        <TouchableOpacity style={styles.iconButton}>
-          <BellIcon color={colors.bellChevronIcon} size={28} />
-        </TouchableOpacity>
-        <View style={styles.profileDetails}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>AS</Text>
-          </View>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>Advika Singh</Text>
-            <Text style={styles.userRole}>HR Admin</Text>
-          </View>
-          <ChevronDownIcon color={colors.bellChevronIcon} size={16} />
-        </View>
-      </View>
-    </View>
-  );
+ 
 };
 
 // --- Breadcrumbs Component ---

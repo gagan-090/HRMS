@@ -96,3 +96,122 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+```
+ERMS_New
+├─ .bundle
+│  └─ config
+├─ .eslintrc.js
+├─ .prettierrc.js
+├─ .watchmanconfig
+├─ android
+│  ├─ app
+│  │  ├─ proguard-rules.pro
+│  │  └─ src
+│  │     ├─ debug
+│  │     │  └─ AndroidManifest.xml
+│  │     └─ main
+│  │        ├─ AndroidManifest.xml
+│  │        ├─ java
+│  │        │  └─ com
+│  │        │     └─ erms_new
+│  │        │        ├─ MainActivity.kt
+│  │        │        └─ MainApplication.kt
+│  │        └─ res
+│  │           ├─ drawable
+│  │           │  └─ rn_edit_text_material.xml
+│  │           ├─ mipmap-hdpi
+│  │           │  ├─ ic_launcher.png
+│  │           │  └─ ic_launcher_round.png
+│  │           ├─ mipmap-mdpi
+│  │           │  ├─ ic_launcher.png
+│  │           │  └─ ic_launcher_round.png
+│  │           ├─ mipmap-xhdpi
+│  │           │  ├─ ic_launcher.png
+│  │           │  └─ ic_launcher_round.png
+│  │           ├─ mipmap-xxhdpi
+│  │           │  ├─ ic_launcher.png
+│  │           │  └─ ic_launcher_round.png
+│  │           ├─ mipmap-xxxhdpi
+│  │           │  ├─ ic_launcher.png
+│  │           │  └─ ic_launcher_round.png
+│  │           └─ values
+│  │              ├─ strings.xml
+│  │              └─ styles.xml
+│  ├─ gradle
+│  │  └─ wrapper
+│  │     ├─ gradle-wrapper.jar
+│  │     └─ gradle-wrapper.properties
+│  ├─ gradle.properties
+│  ├─ gradlew
+│  └─ gradlew.bat
+├─ app.json
+├─ App.tsx
+├─ babel.config.js
+├─ copy
+├─ Gemfile
+├─ index.js
+├─ ios
+│  ├─ .xcode.env
+│  ├─ ERMS_New
+│  │  ├─ AppDelegate.swift
+│  │  ├─ Images.xcassets
+│  │  │  ├─ AppIcon.appiconset
+│  │  │  │  └─ Contents.json
+│  │  │  └─ Contents.json
+│  │  ├─ Info.plist
+│  │  ├─ LaunchScreen.storyboard
+│  │  └─ PrivacyInfo.xcprivacy
+│  ├─ ERMS_New.xcodeproj
+│  │  ├─ project.pbxproj
+│  │  └─ xcshareddata
+│  │     └─ xcschemes
+│  │        └─ ERMS_New.xcscheme
+│  └─ Podfile
+├─ jest.config.js
+├─ metro.config.js
+├─ package-lock.json
+├─ package.json
+├─ react-native.config.js
+├─ README.md
+├─ src
+│  ├─ components
+│  │  ├─ Header.tsx
+│  │  └─ Sidebar.tsx
+│  ├─ constants
+│  │  └─ styles.ts
+│  ├─ navigation
+│  │  └─ DrawerNavigator.tsx
+│  ├─ screens
+│  │  ├─ Attendance
+│  │  │  ├─ AllAttendanceScreen.tsx
+│  │  │  ├─ AttendanceReportsScreen.tsx
+│  │  │  ├─ MarkAttendanceScreen.tsx
+│  │  │  └─ MyAttendanceScreen.tsx
+│  │  ├─ CustomIcon.tsx
+│  │  ├─ DashboardScreen.tsx
+│  │  ├─ Employees
+│  │  │  ├─ AddEmployeeScreen.tsx
+│  │  │  ├─ AllEmployeesScreen.tsx
+│  │  │  ├─ ExportEmployeesScreen.tsx
+│  │  │  └─ ImportEmployeesScreen.tsx
+│  │  ├─ Leaves
+│  │  │  ├─ AllLeavesScreen.tsx
+│  │  │  ├─ ApplyLeaveScreen.tsx
+│  │  │  ├─ LeaveCalendarScreen.tsx
+│  │  │  └─ PendingApprovalsScreen.tsx
+│  │  ├─ Payroll
+│  │  └─ Recruitment
+│  │     ├─ AnalyticsScreen.tsx
+│  │     ├─ ApplicationsScreen.tsx
+│  │     ├─ CandidatesScreen.tsx
+│  │     ├─ InterviewsScreen.tsx
+│  │     ├─ JobPositionsScreen.tsx
+│  │     └─ RecruitmentDashboardScreen.tsx
+│  └─ utils
+│     └─ responsive.ts
+├─ tsconfig.json
+└─ __tests__
+   └─ App.test.tsx
+
+```

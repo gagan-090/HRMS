@@ -1,363 +1,336 @@
-
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  SafeAreaView, 
-  ScrollView, 
-  TouchableOpacity, 
-  TextInput, 
-  Dimensions,
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
   Platform,
 } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import { useTheme } from '../../context/ThemeContext';
+import {
+  widthPixel,
+  heightPixel,
+  fontPixel,
+  spacing,
+  componentSizes,
+  responsiveWidth,
+} from '../../utils/responsive';
 
-// Define colors
-const colors = {
-  primaryBackground: '#F3F4F6',
-  cardBackground: '#FFFFFF',
-  sidebarBackground: '#1D2B64',
-  headerSearchBg: '#F3F4F6',
-  searchIcon: '#6B7280',
-  userNameText: '#1F2937',
-  userRoleText: '#6B7280',
-  bellChevronIcon: '#6B7280',
-  avatarBg: '#007BFF',
-  cardGradientStart: '#1D2B64',
-  cardGradientEnd: '#192655',
-  cardText: '#FFFFFF',
-  addEmployeeBg: '#00B894',
-  addEmployeeText: '#FFFFFF',
-  importExportBg: '#FFFFFF',
-  importExportText: '#6B7280',
-  importExportBorder: '#E5E7EB',
-  dropdownBg: '#FFFFFF',
-  dropdownText: '#1F2937',
-  dropdownBorder: '#E5E7EB',
-  dropdownChevron: '#6B7280',
-  toggleActiveBg: '#007BFF',
-  toggleActiveText: '#FFFFFF',
-  toggleInactiveBg: '#FFFFFF',
-  toggleInactiveText: '#6B7280',
-  toggleBorder: '#E5E7EB',
-  tableHeaderBg: '#FFFFFF',
-  tableHeaderText: '#6B7280',
-  tableRowBg: '#FFFFFF',
-  employeeName: '#1F2937',
-  employeeEmail: '#6B7280',
-  employeeId: '#DC3545',
-  departmentLink: '#007BFF',
-  designationJoinDate: '#1F2937',
-  statusBg: '#E6F7ED',
-  statusText: '#00B894',
-  statusBorder: '#00B894',
-  actionBg: '#E6F7ED',
-  actionText: '#00B894',
-  actionBorder: '#00B894',
-};
-
-// Define typography
-const typography = {
-  fontFamily: 'sans-serif',
-};
-
-// Define types for icon props
-interface IconProps {
-  color: string;
-  size: number;
+// Define the Employee data structure
+interface Employee {
+  id: string;
+  initials: string;
+  avatarColor: string;
+  name: string;
+  email: string;
+  employeeId: string;
+  department: string;
+  designation: string;
+  joiningDate: string;
+  status: 'Active' | 'Inactive' | 'On Leave';
 }
 
-// SVG Icons
-import { StyleProp, ViewStyle } from 'react-native';
+// Sample Employee Data
+const sampleEmployees: Employee[] = [
+  {
+    id: '1',
+    initials: 'AB',
+    avatarColor: '#4285F4',
+    name: 'mrs Aadhya Devi Bansal',
+    email: 'aadhya.bansa155@company.com',
+    employeeId: 'EMP0035',
+    department: 'Human Resources',
+    designation: 'HR Manager',
+    joiningDate: 'Mar 29, 2023',
+    status: 'Active',
+  },
+  {
+    id: '2',
+    initials: 'AJ',
+    avatarColor: '#4285F4',
+    name: 'mr Aadhya Jain',
+    email: 'aadhya.jain49@company.com',
+    employeeId: 'EMP0049',
+    department: 'Marketing',
+    designation: 'Marketing Specialist',
+    joiningDate: 'Jun 03, 2023',
+    status: 'Active',
+  },
+  {
+    id: '3',
+    initials: 'AS',
+    avatarColor: '#4285F4',
+    name: 'ms Aadhya Srivastava',
+    email: 'aadhya.srivastava45@company.com',
+    employeeId: 'EMP0045',
+    department: 'Marketing',
+    designation: 'Content Creator',
+    joiningDate: 'Apr 17, 2024',
+    status: 'Active',
+  },
+  {
+    id: '4',
+    initials: 'AB',
+    avatarColor: '#4285F4',
+    name: 'mr Aarohi Bansal',
+    email: 'aarohi.bansa11@company.com',
+    employeeId: 'EMP0011',
+    department: 'Finance',
+    designation: 'Financial Analyst',
+    joiningDate: 'Nov 23, 2023',
+    status: 'Active',
+  },
+  {
+    id: '5',
+    initials: 'AK',
+    avatarColor: '#4285F4',
+    name: 'ms Aarohi Singh Kumar',
+    email: 'aarohi.kumar78@company.com',
+    employeeId: 'EMP0022',
+    department: 'IT',
+    designation: 'Software Engineer',
+    joiningDate: 'Feb 10, 2023',
+    status: 'Active',
+  },
+];
 
-interface IconProps {
-  color: string;
-  size: number;
-  style?: StyleProp<ViewStyle>;
-}
+const AllEmployeesScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const [searchText, setSearchText] = useState('');
+  const [selectedView, setSelectedView] = useState<'table' | 'grid'>('table');
 
-const HamburgerIcon: React.FC<IconProps> = ({ color, size, style }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={style}>
-    <Path d="M3 12H21M3 6H21M3 18H21" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </Svg>
-);
+  // Simple icon components using Text instead of SVG for better compatibility
+  const UserGroupIcon = () => (
+    <Text style={styles.headerIcon}>👥</Text>
+  );
 
-const SearchIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M15.5 15.5L19 19M11 6C8.23858 6 6 8.23858 6 11C6 13.7614 8.23858 16 11 16C13.7614 16 16 13.7614 16 11C16 8.23858 13.7614 6 11 6Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </Svg>
-);
+  const SearchIcon = () => (
+    <Text style={styles.searchIcon}>🔍</Text>
+  );
 
-const BellIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke={color} strokeWidth="2" />
-    <Path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21H13.73Z" fill={color} />
-  </Svg>
-);
+  const PlusIcon = () => (
+    <Text style={styles.buttonIcon}>+</Text>
+  );
 
-const ChevronDownIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M6 9L12 15L18 9" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </Svg>
-);
+  const DownloadIcon = () => (
+    <Text style={styles.buttonIcon}>⬇</Text>
+  );
 
-const UsersIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H7C5.93913 15 4.92172 15.4214 4.17157 16.1716C3.42143 16.9217 3 17.9391 3 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7ZM12 11C10.3431 11 9 12.3431 9 14" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </Svg>
-);
+  const UploadIcon = () => (
+    <Text style={styles.buttonIcon}>⬆</Text>
+  );
 
-const UserPlusIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M12 4.5C13.6569 4.5 15 5.84315 15 7.5C15 9.15685 13.6569 10.5 12 10.5C10.3431 10.5 9 9.15685 9 7.5C9 5.84315 10.3431 4.5 12 4.5ZM12 4.5C13.6569 4.5 15 3.15685 15 1.5C15 0.671573 14.3284 0 13.5 0H10.5C9.67157 0 9 0.671573 9 1.5C9 3.15685 10.3431 4.5 12 4.5ZM18 15C19.6569 15 21 14.6569 21 14C21 12.3431 19.6569 12 18 12C16.3431 12 15 12.3431 15 14C15 14.6569 16.3431 15 18 15ZM6 12C4.34315 12 3 12.3431 3 14C3 14.6569 4.34315 15 6 15C7.65685 15 9 14.6569 9 14C9 12.3431 7.65685 12 6 12ZM6 12C7.65685 12 9 10.6569 9 9C9 7.34315 7.65685 6 6 6C4.34315 6 3 7.34315 3 9C3 10.6569 4.34315 12 6 12ZM18 22C19.6569 22 21 21.6569 21 21C21 19.3431 19.6569 19 18 19C16.3431 19 15 19.3431 15 21C15 21.6569 16.3431 22 18 22ZM6 19C7.65685 19 9 18.6569 9 18C9 16.3431 7.65685 16 6 16C4.34315 16 3 16.3431 3 18C3 18.6569 4.34315 19 6 19Z" fill={color} />
-  </Svg>
-);
+  const ChevronDownIcon = () => (
+    <Text style={styles.dropdownIcon}>▼</Text>
+  );
 
-const UploadIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 5M12 5L17 10M12 5V15" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </Svg>
-);
+  const TableIcon = () => (
+    <Text style={styles.viewIcon}>☰</Text>
+  );
 
-const DownloadIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </Svg>
-);
+  const GridIcon = () => (
+    <Text style={styles.viewIcon}>⊞</Text>
+  );
 
-const ListIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M3 6H21M3 12H21M3 18H21" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </Svg>
-);
+  const EyeIcon = () => (
+    <Text style={styles.actionIcon}>👁</Text>
+  );
 
-const GridIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M3 3H9V9H3V3ZM3 15H9V21H3V15ZM15 3H21V9H15V3ZM15 15H21V21H15V15Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </Svg>
-);
+  const EditIcon = () => (
+    <Text style={styles.actionIcon}>✏</Text>
+  );
 
-const CheckCircleIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 15.17L17.58 7.59L19 9L10 18L5 13L6.41 11.59L10 15.17Z" fill={color} />
-  </Svg>
-);
-
-const EyeIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill={color} />
-  </Svg>
-);
-
-const EditIcon: React.FC<IconProps> = ({ color, size }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13M18.4142 10L22.5 6.00001L18 1.50001L13.5 5.50001L17.5858 9.58579C17.9629 9.96288 18.4371 10.25 18.9393 10.4375C19.4415 10.625 19.9698 10.7071 20.5 10.7071C21.0302 10.7071 21.5585 10.625 22.0607 10.4375C22.5629 10.25 23.0371 9.96288 23.4142 9.58579L23.5 9.5M13.5 5.50001L23.5 15.5V20H18L8 10H13.5Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </Svg>
-);
-
-// --- Header Component ---
-interface HeaderProps {
-  onMenuPress: () => void;
-}
-
-const Header: React.FC<HeaderProps> = ({ onMenuPress }) => {
-  return (
-    <View style={styles.headerContainer}>
-      <TouchableOpacity style={styles.iconButton} onPress={onMenuPress}>
-        <HamburgerIcon color={colors.bellChevronIcon} size={28} />
-      </TouchableOpacity>
-      <View style={styles.searchBarContainer}>
-        <SearchIcon color={colors.searchIcon} size={20} style={styles.searchIcon} />
-        <TextInput
-          placeholder="Search employees, documents..."
-          placeholderTextColor={colors.searchIcon}
-          style={styles.searchInput}
-        />
-      </View>
-      <View style={styles.userProfileContainer}>
-        <TouchableOpacity style={styles.iconButton}>
-          <BellIcon color={colors.bellChevronIcon} size={28} />
-        </TouchableOpacity>
-        <View style={styles.profileDetails}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>AS</Text>
-          </View>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>Advika Singh</Text>
-            <Text style={styles.userRole}>HR Admin</Text>
-          </View>
-          <ChevronDownIcon color={colors.bellChevronIcon} size={16} />
-        </View>
-      </View>
+  const renderStatistic = (value: number, label: string) => (
+    <View style={styles.statItem}>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
-};
 
-// --- EmployeeManagementCard Component ---
-const EmployeeManagementCard = () => {
-  return (
-    <View style={styles.employeeCardContainer}>
-      <View style={styles.cardContent}>
-        <UsersIcon color={colors.cardText} size={32} style={styles.cardIcon} />
-        <Text style={styles.cardTitle}>Employee Management</Text>
-        <Text style={styles.cardSubtext}>Manage your workforce efficiently</Text>
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>51</Text>
-            <Text style={styles.statLabel}>Total Employees</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>Active</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>This Month</Text>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
-};
-
-// --- FilterActionBar Component ---
-const FilterActionBar = () => {
-  const [selectedDepartment, setSelectedDepartment] = useState('All Departments');
-  const [selectedDesignation, setSelectedDesignation] = useState('All Designations');
-  const [selectedStatus, setSelectedStatus] = useState('All Status');
-  const [viewMode, setViewMode] = useState('Table');
-
-  return (
-    <View style={styles.filterActionBar}>
-      <TouchableOpacity style={styles.dropdown} onPress={() => setSelectedDepartment('New Dept')}>
-        <Text style={styles.dropdownText}>{selectedDepartment}</Text>
-        <ChevronDownIcon color={colors.dropdownChevron} size={16} />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.dropdown} onPress={() => setSelectedDesignation('New Desig')}>
-        <Text style={styles.dropdownText}>{selectedDesignation}</Text>
-        <ChevronDownIcon color={colors.dropdownChevron} size={16} />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.dropdown} onPress={() => setSelectedStatus('New Status')}>
-        <Text style={styles.dropdownText}>{selectedStatus}</Text>
-        <ChevronDownIcon color={colors.dropdownChevron} size={16} />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.addEmployeeButton}>
-        <UserPlusIcon color={colors.addEmployeeText} size={16} style={styles.buttonIcon} />
-        <Text style={styles.addEmployeeText}>Add Employee</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.actionButton}>
-        <UploadIcon color={colors.importExportText} size={16} style={styles.buttonIcon} />
-        <Text style={styles.importExportText}>Import</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.actionButton}>
-        <DownloadIcon color={colors.importExportText} size={16} style={styles.buttonIcon} />
-        <Text style={styles.importExportText}>Export</Text>
-      </TouchableOpacity>
-      <View style={styles.viewToggleContainer}>
-        <TouchableOpacity style={[styles.toggleButton, viewMode === 'Table' && styles.toggleButtonActive]} onPress={() => setViewMode('Table')}>
-          <ListIcon color={viewMode === 'Table' ? colors.toggleActiveText : colors.toggleInactiveText} size={16} />
-          <Text style={[styles.toggleText, viewMode === 'Table' && styles.toggleTextActive]}>Table</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.toggleButton, viewMode === 'Grid' && styles.toggleButtonActive]} onPress={() => setViewMode('Grid')}>
-          <GridIcon color={viewMode === 'Grid' ? colors.toggleActiveText : colors.toggleInactiveText} size={16} />
-          <Text style={[styles.toggleText, viewMode === 'Grid' && styles.toggleTextActive]}>Grid</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
-
-
-interface EmployeeTableRowProps {
-  data: {
-    avatar: string;
-    name: string;
-    email: string;
-    id: string;
-    department: string;
-    designation: string;
-    joiningDate: string;
-  };
-}
-
-const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({ data }) => {
-  return (
+  const renderEmployeeRow = ({ item }: { item: Employee }) => (
     <View style={styles.tableRow}>
-      <View style={styles.tableCell}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{data.avatar}</Text>
+      {/* Employee Column */}
+      <View style={styles.employeeCell}>
+        <View style={[styles.avatar, { backgroundColor: item.avatarColor }]}>
+          <Text style={styles.avatarText}>{item.initials}</Text>
         </View>
-        <View>
-          <Text style={styles.employeeName}>{data.name}</Text>
-          <Text style={styles.employeeEmail}>{data.email}</Text>
+        <View style={styles.employeeInfo}>
+          <Text style={styles.employeeName}>{item.name}</Text>
+          <Text style={styles.employeeEmail}>{item.email}</Text>
         </View>
       </View>
-      <Text style={styles.employeeId}>{data.id}</Text>
-      <Text style={styles.department}>{data.department}</Text>
-      <Text style={styles.designation}>{data.designation}</Text>
-      <Text style={styles.joiningDate}>{data.joiningDate}</Text>
-      <View style={styles.statusPill}>
-        <CheckCircleIcon color={colors.statusText} size={14} />
-        <Text style={styles.statusText}>Active</Text>
+
+      {/* Employee ID Column */}
+      <View style={styles.employeeIdCell}>
+        <Text style={styles.employeeIdText}>{item.employeeId}</Text>
       </View>
-      <View style={styles.actions}>
-        <TouchableOpacity style={styles.actionButtonSmall}>
-          <EyeIcon color={colors.actionText} size={14} />
-          <Text style={styles.actionText}>View</Text>
+
+      {/* Department Column */}
+      <View style={styles.departmentCell}>
+        <TouchableOpacity>
+          <Text style={styles.departmentText}>{item.department}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButtonSmall}>
-          <EditIcon color={colors.actionText} size={14} />
-          <Text style={styles.actionText}>Edit</Text>
+      </View>
+
+      {/* Designation Column */}
+      <View style={styles.designationCell}>
+        <Text style={styles.designationText}>{item.designation}</Text>
+      </View>
+
+      {/* Joining Date Column */}
+      <View style={styles.joiningDateCell}>
+        <Text style={styles.joiningDateText}>{item.joiningDate}</Text>
+      </View>
+
+      {/* Status Column */}
+      <View style={styles.statusCell}>
+        <View style={styles.statusPill}>
+          <View style={styles.statusDot} />
+          <Text style={styles.statusText}>{item.status}</Text>
+        </View>
+      </View>
+
+      {/* Actions Column */}
+      <View style={styles.actionsCell}>
+        <TouchableOpacity style={styles.viewButton}>
+          <EyeIcon />
+          <Text style={styles.viewButtonText}>View</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.editButton}>
+          <EditIcon />
+          <Text style={styles.editButtonText}>Edit</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
-};
-
-interface AllEmployeeScreenProps {
-  navigation: {
-    toggleDrawer: () => void;
-  };
-}
-
-const AllEmployeeScreen: React.FC<AllEmployeeScreenProps> = ({ navigation }) => {
-  const employeeData = [
-    { avatar: 'AB', name: 'mrs Aadhya Devi Bansal', email: 'aadhya.bansal@company.com', id: 'EMP0035', department: 'Human Resources', designation: 'Manager', joiningDate: 'Mar 29, 2023' },
-    { avatar: 'AJ', name: 'mr Aadhya Jain', email: 'aadhya.jain@company.com', id: 'EMP0049', department: 'Marketing', designation: 'Executive', joiningDate: 'Jun 03, 2023' },
-    { avatar: 'AS', name: 'ms Aadhya Srivastava', email: 'aadhya.srivastava@company.com', id: 'EMP0045', department: 'Marketing', designation: 'Analyst', joiningDate: 'Apr 17, 2024' },
-    { avatar: 'AB', name: 'mr Aarohi Bansal', email: 'aarohi.bansal@company.com', id: 'EMP0011', department: 'Finance', designation: 'Accountant', joiningDate: 'Nov 23, 2023' },
-    { avatar: 'AK', name: 'mr Aarohi Singh Kumar', email: 'aarohi.kumar@company.com', id: 'EMP0024', department: 'Human Resources', designation: 'Recruiter', joiningDate: 'Mar 05, 2024' },
-  ];
-
-  const onMenuPress = () => {
-    if (Platform.OS === 'android' && navigation) {
-      navigation.toggleDrawer();
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header onMenuPress={onMenuPress} />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <EmployeeManagementCard />
-        <FilterActionBar />
-        <View style={styles.tableContainer}>
-          <View style={styles.tableHeader}>
-            <Text style={styles.tableHeaderText}>EMPLOYEE</Text>
-            <Text style={styles.tableHeaderText}>EMPLOYEE ID</Text>
-            <Text style={styles.tableHeaderText}>DEPARTMENT</Text>
-            <Text style={styles.tableHeaderText}>DESIGNATION</Text>
-            <Text style={styles.tableHeaderText}>JOINING DATE</Text>
-            <Text style={styles.tableHeaderText}>STATUS</Text>
-            <Text style={styles.tableHeaderText}>ACTIONS</Text>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Header Bar */}
+        <View style={styles.headerBar}>
+          <View style={styles.headerLeft}>
+            <UserGroupIcon />
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.headerTitle}>Employee Management</Text>
+              <Text style={styles.headerSubtitle}>Manage your workforce efficiently</Text>
+            </View>
           </View>
-          {employeeData.map((data, index) => (
-            <React.Fragment key={index}>
-              <EmployeeTableRow data={data} />
-              {index < employeeData.length - 1 && <View style={styles.tableDivider} />}
-            </React.Fragment>
-          ))}
+          <View style={styles.headerRight}>
+            {renderStatistic(51, 'Total Employees')}
+            {renderStatistic(51, 'Active')}
+            {renderStatistic(0, 'This Month')}
+          </View>
+        </View>
+
+        {/* Main Content Card */}
+        <View style={styles.mainCard}>
+          {/* Search and Action Bar */}
+          <View style={styles.searchActionBar}>
+            <View style={styles.searchContainer}>
+              <SearchIcon />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search by name, employee ID, email, or phone..."
+                placeholderTextColor="#9CA3AF"
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+            </View>
+            
+            <TouchableOpacity style={styles.addButton}>
+              <PlusIcon />
+              <Text style={styles.addButtonText}>Add Employee</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.importButton}>
+              <UploadIcon />
+              <Text style={styles.importButtonText}>Import</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.exportButton}>
+              <DownloadIcon />
+              <Text style={styles.exportButtonText}>Export</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Filter and View Bar */}
+          <View style={styles.filterViewBar}>
+            <View style={styles.filtersContainer}>
+              <TouchableOpacity style={styles.dropdown}>
+                <Text style={styles.dropdownText}>All Departments</Text>
+                <ChevronDownIcon />
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.dropdown}>
+                <Text style={styles.dropdownText}>All Designations</Text>
+                <ChevronDownIcon />
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.dropdown}>
+                <Text style={styles.dropdownText}>All Status</Text>
+                <ChevronDownIcon />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.viewToggle}>
+              <TouchableOpacity 
+                style={[styles.viewButton, selectedView === 'table' && styles.activeViewButton]}
+                onPress={() => setSelectedView('table')}
+              >
+                <TableIcon />
+                <Text style={[styles.viewButtonText, selectedView === 'table' && styles.activeViewButtonText]}>
+                  Table
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.viewButton, selectedView === 'grid' && styles.activeViewButton]}
+                onPress={() => setSelectedView('grid')}
+              >
+                <GridIcon />
+                <Text style={[styles.viewButtonText, selectedView === 'grid' && styles.activeViewButtonText]}>
+                  Grid
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Table */}
+          {selectedView === 'table' && (
+            <View style={styles.tableContainer}>
+              {/* Table Header */}
+              <View style={styles.tableHeader}>
+                <Text style={[styles.tableHeaderText, styles.employeeHeader]}>EMPLOYEE</Text>
+                <Text style={[styles.tableHeaderText, styles.employeeIdHeader]}>EMPLOYEE ID</Text>
+                <Text style={[styles.tableHeaderText, styles.departmentHeader]}>DEPARTMENT</Text>
+                <Text style={[styles.tableHeaderText, styles.designationHeader]}>DESIGNATION</Text>
+                <Text style={[styles.tableHeaderText, styles.joiningDateHeader]}>JOINING DATE</Text>
+                <Text style={[styles.tableHeaderText, styles.statusHeader]}>STATUS</Text>
+                <Text style={[styles.tableHeaderText, styles.actionsHeader]}>ACTIONS</Text>
+              </View>
+
+              {/* Table Rows */}
+              <FlatList
+                data={sampleEmployees}
+                renderItem={renderEmployeeRow}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                scrollEnabled={false}
+              />
+            </View>
+          )}
+
+          {/* Grid View Placeholder */}
+          {selectedView === 'grid' && (
+            <View style={styles.gridPlaceholder}>
+              <Text style={styles.placeholderText}>Grid View Coming Soon!</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -367,357 +340,388 @@ const AllEmployeeScreen: React.FC<AllEmployeeScreenProps> = ({ navigation }) => 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primaryBackground,
+    backgroundColor: '#F8FAFC',
   },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
+  scrollView: {
+    flex: 1,
   },
-  headerContainer: {
+  
+  // Header Styles
+  headerBar: {
+    backgroundColor: '#475569',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderRadius: 12,
+    margin: 16,
+    marginBottom: 8,
+  },
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: colors.cardBackground,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.importExportBorder,
+  },
+  headerIcon: {
+    fontSize: 24,
+    color: '#FFFFFF',
+    marginRight: 12,
+  },
+  headerTextContainer: {
+    marginLeft: 8,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginTop: 2,
+  },
+  headerRight: {
+    flexDirection: 'row',
+  },
+  statItem: {
+    alignItems: 'center',
+    marginLeft: 32,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginTop: 2,
+  },
+
+  // Main Card Styles
+  mainCard: {
+    backgroundColor: '#FFFFFF',
+    margin: 16,
+    marginTop: 8,
+    borderRadius: 12,
+    padding: 20,
     shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  iconButton: {
-    padding: 8,
-    borderRadius: 20,
+
+  // Search and Action Bar Styles
+  searchActionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    flexWrap: 'wrap',
   },
-  searchBarContainer: {
+  searchContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.headerSearchBg,
-    borderRadius: 25,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
     paddingHorizontal: 12,
-    marginHorizontal: 16,
     height: 40,
+    marginRight: 12,
+    minWidth: 300,
   },
   searchIcon: {
+    fontSize: 16,
+    color: '#9CA3AF',
     marginRight: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
-    color: colors.userNameText,
-    fontFamily: typography.fontFamily,
+    fontSize: 14,
+    color: '#374151',
   },
-  userProfileContainer: {
+  addButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#10B981',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginRight: 8,
   },
-  profileDetails: {
+  addButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  importButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 16,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  importButtonText: {
+    color: '#374151',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  exportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  exportButtonText: {
+    color: '#374151',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  buttonIcon: {
+    fontSize: 14,
+    color: '#FFFFFF',
+  },
+
+  // Filter and View Bar Styles
+  filterViewBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    flexWrap: 'wrap',
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  dropdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  dropdownText: {
+    fontSize: 14,
+    color: '#374151',
+    marginRight: 6,
+  },
+  dropdownIcon: {
+    fontSize: 10,
+    color: '#9CA3AF',
+  },
+  viewToggle: {
+    flexDirection: 'row',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 6,
+    padding: 2,
+  },
+  viewButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+  },
+  activeViewButton: {
+    backgroundColor: '#3B82F6',
+  },
+  viewButtonText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginLeft: 4,
+  },
+  activeViewButtonText: {
+    color: '#FFFFFF',
+  },
+  viewIcon: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+
+  // Table Styles
+  tableContainer: {
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#F8FAFC',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  tableHeaderText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6B7280',
+    textTransform: 'uppercase',
+  },
+  employeeHeader: { flex: 3 },
+  employeeIdHeader: { flex: 1.2, textAlign: 'center' },
+  departmentHeader: { flex: 1.5 },
+  designationHeader: { flex: 1.5 },
+  joiningDateHeader: { flex: 1.2 },
+  statusHeader: { flex: 1, textAlign: 'center' },
+  actionsHeader: { flex: 1.5, textAlign: 'center' },
+
+  // Table Row Styles
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  employeeCell: {
+    flex: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.avatarBg,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+    marginRight: 12,
   },
   avatarText: {
-    color: colors.cardBackground,
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: typography.fontFamily,
-  },
-  userInfo: {
-    marginRight: 8,
-  },
-  userName: {
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
-    color: colors.userNameText,
-    fontFamily: typography.fontFamily,
   },
-  userRole: {
-    fontSize: 12,
-    color: colors.userRoleText,
-    fontFamily: typography.fontFamily,
-  },
-  employeeCardContainer: {
-    backgroundColor: colors.cardGradientStart,
-    borderRadius: 8,
-    marginTop: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    overflow: 'hidden',
-  },
-  cardContent: {
-    padding: 16,
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-  },
-  cardIcon: {
-    marginBottom: 8,
-  },
-  cardTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.cardText,
-    marginBottom: 4,
-    fontFamily: typography.fontFamily,
-  },
-  cardSubtext: {
-    fontSize: 14,
-    color: colors.cardText,
-    fontFamily: typography.fontFamily,
-    marginBottom: 16,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  statItem: {
-    alignItems: 'center',
+  employeeInfo: {
     flex: 1,
-  },
-  statValue: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.cardText,
-    fontFamily: typography.fontFamily,
-  },
-  statLabel: {
-    fontSize: 13,
-    color: colors.cardText,
-    fontFamily: typography.fontFamily,
-  },
-  filterActionBar: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-    alignItems: 'center', // Ensure vertical alignment
-  },
-  dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.dropdownBg,
-    borderWidth: 1,
-    borderColor: colors.dropdownBorder,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 8,
-    minWidth: 120,
-  },
-  dropdownText: {
-    fontSize: 14,
-    color: colors.dropdownText,
-    fontFamily: typography.fontFamily,
-    marginRight: 8,
-  },
-  addEmployeeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.addEmployeeBg,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 8,
-  },
-  buttonIcon: {
-    marginRight: 8,
-  },
-  addEmployeeText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.addEmployeeText,
-    fontFamily: typography.fontFamily,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.importExportBg,
-    borderWidth: 1,
-    borderColor: colors.importExportBorder,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 8,
-    marginLeft: 8,
-  },
-  importExportText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.importExportText,
-    fontFamily: typography.fontFamily,
-  },
-  viewToggleContainer: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.toggleBorder,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  toggleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.toggleInactiveBg,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    minWidth: 80,
-    justifyContent: 'center',
-  },
-  toggleButtonActive: {
-    backgroundColor: colors.toggleActiveBg,
-  },
-  toggleText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.toggleInactiveText,
-    fontFamily: typography.fontFamily,
-    marginLeft: 8,
-  },
-  toggleTextActive: {
-    color: colors.toggleActiveText,
-  },
-  tableContainer: {
-    backgroundColor: colors.cardBackground,
-    borderRadius: 8,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.importExportBorder,
-  },
-  tableHeaderText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.tableHeaderText,
-    textTransform: 'uppercase',
-    fontFamily: typography.fontFamily,
-    flex: 1,
-    textAlign: 'center',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.importExportBorder,
-  },
-  tableCell: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 2,
   },
   employeeName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: colors.employeeName,
-    fontFamily: typography.fontFamily,
-    marginLeft: 8,
+    fontWeight: '500',
+    color: '#111827',
   },
   employeeEmail: {
     fontSize: 12,
-    color: colors.employeeEmail,
-    fontFamily: typography.fontFamily,
-    marginLeft: 8,
+    color: '#6B7280',
+    marginTop: 2,
   },
-  employeeId: {
-    fontSize: 12,
+  employeeIdCell: {
+    flex: 1.2,
+    alignItems: 'center',
+  },
+  employeeIdText: {
+    fontSize: 13,
     fontWeight: '600',
-    color: colors.employeeId,
-    fontFamily: typography.fontFamily,
-    flex: 1,
-    textAlign: 'center',
+    color: '#DC2626',
   },
-  department: {
-    fontSize: 14,
-    color: colors.departmentLink,
-    textDecorationLine: 'underline',
-    fontFamily: typography.fontFamily,
-    flex: 1,
-    textAlign: 'center',
+  departmentCell: {
+    flex: 1.5,
   },
-  designation: {
-    fontSize: 14,
-    color: colors.designationJoinDate,
-    fontFamily: typography.fontFamily,
-    flex: 1,
-    textAlign: 'center',
+  departmentText: {
+    fontSize: 13,
+    color: '#2563EB',
+    fontWeight: '500',
   },
-  joiningDate: {
-    fontSize: 14,
-    color: colors.designationJoinDate,
-    fontFamily: typography.fontFamily,
+  designationCell: {
+    flex: 1.5,
+  },
+  designationText: {
+    fontSize: 13,
+    color: '#374151',
+  },
+  joiningDateCell: {
+    flex: 1.2,
+  },
+  joiningDateText: {
+    fontSize: 13,
+    color: '#374151',
+  },
+  statusCell: {
     flex: 1,
-    textAlign: 'center',
+    alignItems: 'center',
   },
   statusPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.statusBg,
-    borderWidth: 1,
-    borderColor: colors.statusBorder,
-    borderRadius: 16,
+    backgroundColor: '#D1FAE5',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    flex: 1,
-    justifyContent: 'center',
+    borderRadius: 12,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#10B981',
+    marginRight: 4,
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: colors.statusText,
-    fontFamily: typography.fontFamily,
-    marginLeft: 4,
+    fontWeight: '500',
+    color: '#065F46',
   },
-  actions: {
+  actionsCell: {
+    flex: 1.5,
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    flex: 1,
+    justifyContent: 'center',
   },
-  actionButtonSmall: {
+  viewButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.actionBg,
     borderWidth: 1,
-    borderColor: colors.actionBorder,
-    borderRadius: 8,
+    borderColor: '#3B82F6',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    marginHorizontal: 4,
+    borderRadius: 4,
+    marginRight: 4,
   },
-  actionText: {
+  viewButtonText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: colors.actionText,
-    fontFamily: typography.fontFamily,
-    marginLeft: 4,
+    color: '#3B82F6',
+    marginLeft: 2,
   },
-  tableDivider: {
-    height: 1,
-    backgroundColor: colors.importExportBorder,
-    marginHorizontal: -16,
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#10B981',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  editButtonText: {
+    fontSize: 12,
+    color: '#10B981',
+    marginLeft: 2,
+  },
+  actionIcon: {
+    fontSize: 12,
+  },
+
+  // Grid Placeholder
+  gridPlaceholder: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  placeholderText: {
+    fontSize: 16,
+    color: '#6B7280',
   },
 });
 
-export default AllEmployeeScreen;
+export default AllEmployeesScreen;
