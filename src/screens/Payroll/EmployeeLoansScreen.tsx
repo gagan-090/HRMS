@@ -4,210 +4,388 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   TextInput,
-  FlatList,
+  Dimensions,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../../context/ThemeContext';
+import LoadingScreen from '../../components/LoadingScreen';
+import {
+  widthPixel,
+  heightPixel,
+  fontPixel,
+  spacing,
+  componentSizes,
+  isSmallDevice,
+  isTablet,
+  responsiveWidth,
+} from '../../utils/responsive';
 
-interface EmployeeLoan {
-  id: string;
-  employeeId: string;
-  employeeName: string;
-  loanType: string;
-  loanAmount: number;
-  remainingAmount: number;
-  monthlyDeduction: number;
-  startDate: string;
-  endDate: string;
-  status: 'Active' | 'Completed' | 'Pending' | 'Rejected';
-}
+// Icons (you can replace with your actual icon components)
+const BankIcon = () => <Text style={{ fontSize: 20, color: '#fff' }}>🏦</Text>;
+const PlusIcon = () => <Text style={{ fontSize: 16, color: '#fff' }}>+</Text>;
+const SearchIcon = () => (
+  <Text style={{ fontSize: 16, color: '#9CA3AF' }}>🔍</Text>
+);
+const FilterIcon = () => (
+  <Text style={{ fontSize: 16, color: '#fff' }}>⚙️</Text>
+);
+const ExportIcon = () => (
+  <Text style={{ fontSize: 16, color: '#6B7280' }}>📊</Text>
+);
+const EmptyStateIcon = () => (
+  <Text style={{ fontSize: 48, color: '#9CA3AF' }}>🏛️</Text>
+);
 
-const sampleLoans: EmployeeLoan[] = [
-  {
-    id: '1',
-    employeeId: 'EMP001',
-    employeeName: 'John Doe',
-    loanType: 'Personal Loan',
-    loanAmount: 500000,
-    remainingAmount: 250000,
-    monthlyDeduction: 25000,
-    startDate: '01 Jan 2024',
-    endDate: '31 Dec 2024',
-    status: 'Active',
-  },
-  {
-    id: '2',
-    employeeId: 'EMP002',
-    employeeName: 'Jane Smith',
-    loanType: 'Home Loan',
-    loanAmount: 1000000,
-    remainingAmount: 800000,
-    monthlyDeduction: 40000,
-    startDate: '15 Feb 2024',
-    endDate: '15 Feb 2026',
-    status: 'Active',
-  },
-  {
-    id: '3',
-    employeeId: 'EMP003',
-    employeeName: 'Mike Johnson',
-    loanType: 'Emergency Loan',
-    loanAmount: 100000,
-    remainingAmount: 0,
-    monthlyDeduction: 0,
-    startDate: '01 Dec 2023',
-    endDate: '30 Nov 2024',
-    status: 'Completed',
-  },
-];
-
-const EmployeeLoansScreen: React.FC = () => {
+const EmployeeLoansScreen = () => {
   const { colors } = useTheme();
+  const [loading] = useState(false);
   const [searchText, setSearchText] = useState('');
 
-  const LoanIcon = () => <Text style={styles.headerIcon}>💳</Text>;
-  const SearchIcon = () => <Text style={styles.searchIcon}>🔍</Text>;
-  const PlusIcon = () => <Text style={styles.buttonIcon}>+</Text>;
-  const EyeIcon = () => <Text style={styles.actionIcon}>👁</Text>;
-  const EditIcon = () => <Text style={styles.actionIcon}>✏</Text>;
+  // Sample loan data for responsive table/card view
+  const [loans] = useState([
+    {
+      id: 'EMP001',
+      name: 'John Doe',
+      type: 'Personal Loan',
+      amount: '₹5.0L',
+      remaining: '₹2.5L',
+      monthly: '₹2500',
+      progress: 50,
+      status: 'Active',
+    },
+    {
+      id: 'EMP002',
+      name: 'Jane Smith',
+      type: 'Home Loan',
+      amount: '₹10.0L',
+      remaining: '₹8.0L',
+      monthly: '₹4000',
+      progress: 20,
+      status: 'Active',
+    },
+    {
+      id: 'EMP003',
+      name: 'Mike Johnson',
+      type: 'Emergency Loan',
+      amount: '₹1.0L',
+      remaining: '₹0.0L',
+      monthly: '₹0',
+      progress: 100,
+      status: 'Completed',
+    },
+  ]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Active':
-        return { bg: colors.infoBlueBg, text: colors.infoBlueText };
-      case 'Completed':
-        return { bg: colors.successGreenBg, text: colors.successGreenText };
-      case 'Pending':
-        return { bg: colors.warningYellow, text: colors.warningYellowBorder };
-      case 'Rejected':
-        return { bg: colors.dangerRedBg, text: colors.dangerRedText };
-      default:
-        return { bg: colors.lightGray, text: colors.grayText };
-    }
-  };
+  const renderHeader = () => (
+    <LinearGradient
+      colors={['#8B5CF6', '#A855F7', '#C084FC']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.headerContainer}
+    >
+      <View style={styles.headerContent}>
+        <View style={styles.headerTop}>
+          <View style={styles.headerLeft}>
+            <BankIcon />
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.headerTitle}>Employee Loan Management</Text>
+              <Text style={styles.headerSubtitle}>
+                Streamline employee loan applications, approvals, and repayment
+                tracking
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
 
-  const renderLoanRow = ({ item }: { item: EmployeeLoan }) => {
-    const statusColors = getStatusColor(item.status);
-    const completionPercentage = ((item.loanAmount - item.remainingAmount) / item.loanAmount) * 100;
-    
+      <View style={styles.statsContainer}>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>0</Text>
+          <Text style={styles.statLabel}>TOTAL LOANS</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>0</Text>
+          <Text style={styles.statLabel}>ACTIVE</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>0</Text>
+          <Text style={styles.statLabel}>PENDING</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>₹0</Text>
+          <Text style={styles.statLabel}>TOTAL AMOUNT</Text>
+        </View>
+      </View>
+    </LinearGradient>
+  );
+
+  const renderSearchAndActions = () => (
+    <View style={styles.searchActionContainer}>
+      <View
+        style={[styles.searchContainer, { backgroundColor: colors.lightGray }]}
+      >
+        <SearchIcon />
+        <TextInput
+          style={[styles.searchInput, { color: colors.darkGrayText }]}
+          placeholder="Search loans by employee"
+          placeholderTextColor={colors.grayText}
+          value={searchText}
+          onChangeText={setSearchText}
+        />
+      </View>
+
+      <TouchableOpacity
+        style={[styles.addLoanButton, { backgroundColor: colors.accentGreen }]}
+      >
+        <PlusIcon />
+        <Text style={styles.addLoanButtonText}>Add Loan</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderLoanCard = (loan: any, index: number) => {
+    const getStatusColor = (status: string) => {
+      return status === 'Active' ? colors.primaryDarkBlue : colors.accentGreen;
+    };
+
     return (
-      <View style={[styles.tableRow, { borderBottomColor: colors.tableBorder }]}>
-        <View style={styles.employeeCell}>
-          <Text style={[styles.employeeId, { color: colors.red }]}>{item.employeeId}</Text>
-          <Text style={[styles.employeeName, { color: colors.textColor }]}>{item.employeeName}</Text>
-          <Text style={[styles.loanType, { color: colors.grayText }]}>{item.loanType}</Text>
-        </View>
-        
-        <View style={styles.amountCell}>
-          <Text style={[styles.loanAmount, { color: colors.textColor }]}>₹{(item.loanAmount / 100000).toFixed(1)}L</Text>
-          <Text style={[styles.amountLabel, { color: colors.grayText }]}>Total</Text>
-        </View>
-        
-        <View style={styles.amountCell}>
-          <Text style={[styles.remainingAmount, { color: colors.red }]}>₹{(item.remainingAmount / 100000).toFixed(1)}L</Text>
-          <Text style={[styles.amountLabel, { color: colors.grayText }]}>Remaining</Text>
-        </View>
-        
-        <View style={styles.deductionCell}>
-          <Text style={[styles.monthlyDeduction, { color: colors.accentGreen }]}>₹{item.monthlyDeduction.toLocaleString()}</Text>
-          <Text style={[styles.amountLabel, { color: colors.grayText }]}>Monthly</Text>
-        </View>
-        
-        <View style={styles.progressCell}>
-          <View style={[styles.progressBar, { backgroundColor: colors.borderGray }]}>
-            <View style={[styles.progressFill, { width: `${completionPercentage}%`, backgroundColor: colors.accentGreen }]} />
+      <View
+        key={loan.id}
+        style={[styles.loanCard, { backgroundColor: colors.cardBackground }]}
+      >
+        <View style={styles.loanCardHeader}>
+          <View style={styles.employeeInfo}>
+            <Text style={[styles.employeeId, { color: colors.dangerRedText }]}>
+              {loan.id}
+            </Text>
+            <Text style={[styles.employeeName, { color: colors.darkGrayText }]}>
+              {loan.name}
+            </Text>
+            <Text style={[styles.loanType, { color: colors.grayText }]}>
+              {loan.type}
+            </Text>
           </View>
-          <Text style={[styles.progressText, { color: colors.grayText }]}>{completionPercentage.toFixed(0)}%</Text>
-        </View>
-        
-        <View style={styles.statusCell}>
-          <View style={[styles.statusPill, { backgroundColor: statusColors.bg }]}>
-            <Text style={[styles.statusText, { color: statusColors.text }]}>{item.status}</Text>
+
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: getStatusColor(loan.status) },
+            ]}
+          >
+            <Text style={styles.statusText}>{loan.status}</Text>
           </View>
         </View>
-        
-        <View style={styles.actionsCell}>
+
+        <View style={styles.loanCardContent}>
+          <View style={styles.amountRow}>
+            <View style={styles.amountItem}>
+              <Text
+                style={[styles.amountValue, { color: colors.darkGrayText }]}
+              >
+                {loan.amount}
+              </Text>
+              <Text style={[styles.amountLabel, { color: colors.grayText }]}>
+                Total
+              </Text>
+            </View>
+
+            <View style={styles.amountItem}>
+              <Text
+                style={[styles.amountValue, { color: colors.dangerRedText }]}
+              >
+                {loan.remaining}
+              </Text>
+              <Text style={[styles.amountLabel, { color: colors.grayText }]}>
+                Remaining
+              </Text>
+            </View>
+
+            <View style={styles.amountItem}>
+              <Text style={[styles.amountValue, { color: colors.accentGreen }]}>
+                {loan.monthly}
+              </Text>
+              <Text style={[styles.amountLabel, { color: colors.grayText }]}>
+                Monthly
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.progressSection}>
+            <View
+              style={[
+                styles.progressBar,
+                { backgroundColor: colors.borderGray },
+              ]}
+            >
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${loan.progress}%`,
+                    backgroundColor: colors.accentGreen,
+                  },
+                ]}
+              />
+            </View>
+            <Text style={[styles.progressText, { color: colors.grayText }]}>
+              {loan.progress}%
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.loanCardActions}>
           <TouchableOpacity style={styles.actionButton}>
-            <EyeIcon />
+            <Text
+              style={[styles.actionIcon, { color: colors.primaryDarkBlue }]}
+            >
+              👁
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
-            <EditIcon />
+            <Text
+              style={[styles.actionIcon, { color: colors.primaryDarkBlue }]}
+            >
+              ✏️
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   };
 
+  const renderTableHeader = () => (
+    <View style={[styles.tableHeader, { backgroundColor: colors.lightGray }]}>
+      <Text
+        style={[
+          styles.tableHeaderText,
+          styles.employeeColumn,
+          { color: colors.grayText },
+        ]}
+      >
+        EMPLOYEE
+      </Text>
+      <Text
+        style={[
+          styles.tableHeaderText,
+          styles.amountColumn,
+          { color: colors.grayText },
+        ]}
+      >
+        LOAN AMOUNT
+      </Text>
+      <Text
+        style={[
+          styles.tableHeaderText,
+          styles.remainingColumn,
+          { color: colors.grayText },
+        ]}
+      >
+        REMAINING
+      </Text>
+      <Text
+        style={[
+          styles.tableHeaderText,
+          styles.monthlyColumn,
+          { color: colors.grayText },
+        ]}
+      >
+        MONTHLY EMI
+      </Text>
+      <Text
+        style={[
+          styles.tableHeaderText,
+          styles.progressColumn,
+          { color: colors.grayText },
+        ]}
+      >
+        PROGRESS
+      </Text>
+      <Text
+        style={[
+          styles.tableHeaderText,
+          styles.statusColumn,
+          { color: colors.grayText },
+        ]}
+      >
+        STATUS
+      </Text>
+      <Text
+        style={[
+          styles.tableHeaderText,
+          styles.actionsColumn,
+          { color: colors.grayText },
+        ]}
+      >
+        ACTIONS
+      </Text>
+    </View>
+  );
+
+  const renderLoansContent = () => {
+    if (loans.length === 0) {
+      return (
+        <View style={styles.emptyStateContainer}>
+          <EmptyStateIcon />
+          <Text
+            style={[styles.emptyStateTitle, { color: colors.darkGrayText }]}
+          >
+            🔍 No Loan Applications Found
+          </Text>
+          <Text style={[styles.emptyStateMessage, { color: colors.grayText }]}>
+            No loan applications have been submitted yet.
+          </Text>
+          <Text
+            style={[styles.emptyStateSubMessage, { color: colors.grayText }]}
+          >
+            Employees can apply for loans through the self-service portal.
+          </Text>
+
+          <TouchableOpacity
+            style={[
+              styles.createFirstLoanButton,
+              { backgroundColor: colors.primaryDarkBlue },
+            ]}
+          >
+            <PlusIcon />
+            <Text style={styles.createFirstLoanButtonText}>
+              Create First Loan
+            </Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    // Show table view on tablets, card view on phones
+    if (isTablet()) {
+      return (
+        <View style={styles.tableContainer}>
+          {renderTableHeader()}
+          {loans.map((loan, index) => renderLoanCard(loan, index))}
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.cardsContainer}>
+          {loans.map((loan, index) => renderLoanCard(loan, index))}
+        </View>
+      );
+    }
+  };
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={[styles.header, { backgroundColor: colors.primaryDarkBlue }]}>
-          <View style={styles.headerLeft}>
-            <LoanIcon />
-            <View style={styles.headerTextContainer}>
-              <Text style={[styles.headerTitle, { color: colors.white }]}>Employee Loans</Text>
-              <Text style={[styles.headerSubtitle, { color: colors.white }]}>Manage employee loan applications and repayments</Text>
-            </View>
-          </View>
-          <View style={styles.headerStats}>
-            <View style={styles.statItem}>
-              <Text style={[styles.statValue, { color: colors.white }]}>23</Text>
-              <Text style={[styles.statLabel, { color: colors.white }]}>Active Loans</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={[styles.statValue, { color: colors.white }]}>₹12.5L</Text>
-              <Text style={[styles.statLabel, { color: colors.white }]}>Total Outstanding</Text>
-            </View>
-          </View>
-        </View>
+    <View style={[styles.container, { backgroundColor: colors.lightGray }]}>
+      {renderHeader()}
 
-        {/* Main Content */}
-        <View style={[styles.mainCard, { backgroundColor: colors.cardBackground }]}>
-          {/* Search and Actions */}
-          <View style={styles.searchActionBar}>
-            <View style={[styles.searchContainer, { backgroundColor: colors.lightGray }]}>
-              <SearchIcon />
-              <TextInput
-                style={[styles.searchInput, { color: colors.textColor }]}
-                placeholder="Search loans by employee name, ID, or loan type..."
-                placeholderTextColor={colors.grayText}
-                value={searchText}
-                onChangeText={setSearchText}
-              />
-            </View>
-            
-            <TouchableOpacity style={[styles.addButton, { backgroundColor: colors.accentGreen }]}>
-              <PlusIcon />
-              <Text style={[styles.addButtonText, { color: colors.white }]}>Add Loan</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Table */}
-          <View style={styles.tableContainer}>
-            <View style={[styles.tableHeader, { backgroundColor: colors.lightGray, borderBottomColor: colors.borderGray }]}>
-              <Text style={[styles.tableHeaderText, styles.employeeHeader, { color: colors.tableHeader }]}>EMPLOYEE</Text>
-              <Text style={[styles.tableHeaderText, styles.amountHeader, { color: colors.tableHeader }]}>LOAN AMOUNT</Text>
-              <Text style={[styles.tableHeaderText, styles.amountHeader, { color: colors.tableHeader }]}>REMAINING</Text>
-              <Text style={[styles.tableHeaderText, styles.deductionHeader, { color: colors.tableHeader }]}>MONTHLY EMI</Text>
-              <Text style={[styles.tableHeaderText, styles.progressHeader, { color: colors.tableHeader }]}>PROGRESS</Text>
-              <Text style={[styles.tableHeaderText, styles.statusHeader, { color: colors.tableHeader }]}>STATUS</Text>
-              <Text style={[styles.tableHeaderText, styles.actionsHeader, { color: colors.tableHeader }]}>ACTIONS</Text>
-            </View>
-
-            <FlatList
-              data={sampleLoans}
-              renderItem={renderLoanRow}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              scrollEnabled={false}
-            />
-          </View>
-        </View>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {renderSearchAndActions()}
+        {renderLoansContent()}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -215,239 +393,319 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
+  // Responsive Header Styles
+  headerContainer: {
+    paddingTop: heightPixel(50),
+    paddingBottom: heightPixel(24),
+    paddingHorizontal: widthPixel(16),
+    borderBottomLeftRadius: widthPixel(30),
+    borderBottomRightRadius: widthPixel(30),
+    shadowColor: '#8B5CF6',
+    shadowOffset: {
+      width: 0,
+      height: heightPixel(8),
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: widthPixel(12),
+    elevation: 15,
   },
-  header: {
-    backgroundColor: '#475569',
+  headerContent: {
+    marginBottom: heightPixel(16),
+  },
+  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    borderRadius: 12,
-    margin: 16,
-    marginBottom: 8,
+    marginBottom: heightPixel(12),
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  headerIcon: {
-    fontSize: 24,
-    color: '#FFFFFF',
-    marginRight: 12,
-  },
   headerTextContainer: {
+    marginLeft: widthPixel(12),
     flex: 1,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontSize: fontPixel(isSmallDevice() ? 16 : 18),
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: heightPixel(2),
   },
   headerSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 2,
+    fontSize: fontPixel(isSmallDevice() ? 11 : 12),
+    color: '#fff',
+    opacity: 0.9,
+    lineHeight: heightPixel(16),
   },
-  headerStats: {
+  // Responsive Stats Container
+  statsContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: widthPixel(isSmallDevice() ? 6 : 8),
   },
-  statItem: {
+  statCard: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    padding: widthPixel(isSmallDevice() ? 10 : 12),
+    borderRadius: widthPixel(16),
     alignItems: 'center',
-    marginLeft: 32,
+    justifyContent: 'center',
+    minHeight: heightPixel(isSmallDevice() ? 55 : 60),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: 'rgba(139, 92, 246, 0.3)',
+    shadowOffset: {
+      width: 0,
+      height: heightPixel(4),
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: widthPixel(8),
+    elevation: 8,
   },
-  statValue: {
-    fontSize: 20,
+  statNumber: {
+    fontSize: fontPixel(isSmallDevice() ? 16 : 18),
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#fff',
+    marginBottom: heightPixel(2),
   },
   statLabel: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 2,
+    fontSize: fontPixel(isSmallDevice() ? 9 : 10),
+    color: '#fff',
+    textAlign: 'center',
+    opacity: 0.9,
   },
-  mainCard: {
-    backgroundColor: '#FFFFFF',
-    margin: 16,
-    marginTop: 8,
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  // Responsive Content Area
+  content: {
+    flex: 1,
+    padding: widthPixel(16),
   },
-  searchActionBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
+  // Search and Actions - Responsive Layout
+  searchActionContainer: {
+    flexDirection: isSmallDevice() ? 'column' : 'row',
+    alignItems: isSmallDevice() ? 'stretch' : 'center',
+    marginBottom: heightPixel(20),
+    gap: widthPixel(12),
   },
   searchContainer: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 40,
-    marginRight: 12,
-  },
-  searchIcon: {
-    fontSize: 16,
-    color: '#9CA3AF',
-    marginRight: 8,
+    paddingHorizontal: widthPixel(12),
+    paddingVertical: heightPixel(12),
+    borderRadius: widthPixel(8),
+    flex: isSmallDevice() ? 0 : 1,
+    minHeight: componentSizes.inputHeight,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    color: '#374151',
+    fontSize: fontPixel(14),
+    marginLeft: widthPixel(8),
   },
-  addButton: {
+  addLoanButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#10B981',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingHorizontal: widthPixel(16),
+    paddingVertical: heightPixel(12),
+    borderRadius: widthPixel(20),
+    gap: widthPixel(6),
+    minHeight: componentSizes.buttonHeight,
+    justifyContent: 'center',
   },
-  addButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
+  addLoanButtonText: {
+    color: '#fff',
+    fontSize: fontPixel(14),
     fontWeight: '500',
-    marginLeft: 4,
   },
-  buttonIcon: {
-    fontSize: 14,
-    color: '#FFFFFF',
+  // Responsive Cards Container
+  cardsContainer: {
+    gap: heightPixel(16),
   },
+  // Responsive Loan Card Styles
+  loanCard: {
+    borderRadius: widthPixel(12),
+    padding: widthPixel(16),
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: heightPixel(2),
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: widthPixel(4),
+    elevation: 3,
+    marginBottom: heightPixel(8),
+  },
+  loanCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: heightPixel(12),
+  },
+  employeeInfo: {
+    flex: 1,
+  },
+  employeeId: {
+    fontSize: fontPixel(12),
+    fontWeight: '600',
+    marginBottom: heightPixel(2),
+  },
+  employeeName: {
+    fontSize: fontPixel(14),
+    fontWeight: '500',
+    marginBottom: heightPixel(2),
+  },
+  loanType: {
+    fontSize: fontPixel(12),
+  },
+  statusBadge: {
+    paddingHorizontal: widthPixel(12),
+    paddingVertical: heightPixel(6),
+    borderRadius: widthPixel(16),
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: fontPixel(12),
+    fontWeight: '500',
+  },
+  loanCardContent: {
+    marginBottom: heightPixel(12),
+  },
+  // Responsive Amount Row
+  amountRow: {
+    flexDirection: isSmallDevice() ? 'column' : 'row',
+    justifyContent: 'space-between',
+    marginBottom: heightPixel(12),
+    gap: heightPixel(isSmallDevice() ? 8 : 0),
+  },
+  amountItem: {
+    alignItems: isSmallDevice() ? 'flex-start' : 'center',
+    flex: isSmallDevice() ? 0 : 1,
+  },
+  amountValue: {
+    fontSize: fontPixel(14),
+    fontWeight: '600',
+    marginBottom: heightPixel(2),
+  },
+  amountLabel: {
+    fontSize: fontPixel(12),
+  },
+  // Progress Section
+  progressSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: widthPixel(12),
+  },
+  progressBar: {
+    flex: 1,
+    height: heightPixel(6),
+    borderRadius: widthPixel(3),
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: widthPixel(3),
+  },
+  progressText: {
+    fontSize: fontPixel(12),
+    minWidth: widthPixel(35),
+    textAlign: 'right',
+  },
+  loanCardActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: widthPixel(12),
+  },
+  actionButton: {
+    padding: widthPixel(8),
+    minWidth: widthPixel(40),
+    alignItems: 'center',
+  },
+  actionIcon: {
+    fontSize: fontPixel(16),
+  },
+  // Responsive Table Styles (for tablets)
   tableContainer: {
-    borderRadius: 8,
+    borderRadius: widthPixel(8),
     overflow: 'hidden',
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#F8FAFC',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: heightPixel(12),
+    paddingHorizontal: widthPixel(16),
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
   tableHeaderText: {
-    fontSize: 12,
+    fontSize: fontPixel(11),
     fontWeight: '600',
-    color: '#6B7280',
     textTransform: 'uppercase',
   },
-  employeeHeader: { flex: 3 },
-  amountHeader: { flex: 2, textAlign: 'center' },
-  deductionHeader: { flex: 2, textAlign: 'center' },
-  progressHeader: { flex: 2, textAlign: 'center' },
-  statusHeader: { flex: 1.5, textAlign: 'center' },
-  actionsHeader: { flex: 1.5, textAlign: 'center' },
-  tableRow: {
+  // Responsive Table Columns
+  employeeColumn: {
+    flex: isTablet() ? 3 : 2.5,
+    textAlign: 'left',
+  },
+  amountColumn: {
+    flex: isTablet() ? 2 : 1.5,
+    textAlign: 'center',
+  },
+  remainingColumn: {
+    flex: isTablet() ? 2 : 1.5,
+    textAlign: 'center',
+  },
+  monthlyColumn: {
+    flex: isTablet() ? 2 : 1.5,
+    textAlign: 'center',
+  },
+  progressColumn: {
+    flex: isTablet() ? 2 : 1.5,
+    textAlign: 'center',
+  },
+  statusColumn: {
+    flex: isTablet() ? 1.5 : 1,
+    textAlign: 'center',
+  },
+  actionsColumn: {
+    flex: isTablet() ? 1.5 : 1,
+    textAlign: 'center',
+  },
+  // Responsive Empty State
+  emptyStateContainer: {
+    alignItems: 'center',
+    paddingVertical: heightPixel(40),
+    paddingHorizontal: widthPixel(20),
+  },
+  emptyStateTitle: {
+    fontSize: fontPixel(16),
+    fontWeight: '600',
+    marginTop: heightPixel(16),
+    marginBottom: heightPixel(8),
+    textAlign: 'center',
+  },
+  emptyStateMessage: {
+    fontSize: fontPixel(14),
+    textAlign: 'center',
+    marginBottom: heightPixel(4),
+    lineHeight: heightPixel(20),
+  },
+  emptyStateSubMessage: {
+    fontSize: fontPixel(14),
+    textAlign: 'center',
+    marginBottom: heightPixel(24),
+    lineHeight: heightPixel(20),
+  },
+  createFirstLoanButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    paddingHorizontal: widthPixel(16),
+    paddingVertical: heightPixel(12),
+    borderRadius: widthPixel(20),
+    gap: widthPixel(6),
+    minHeight: componentSizes.buttonHeight,
   },
-  employeeCell: {
-    flex: 3,
-  },
-  employeeId: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#DC2626',
-  },
-  employeeName: {
-    fontSize: 14,
+  createFirstLoanButtonText: {
+    color: '#fff',
+    fontSize: fontPixel(14),
     fontWeight: '500',
-    color: '#111827',
-    marginTop: 2,
-  },
-  loanType: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 1,
-  },
-  amountCell: {
-    flex: 2,
-    alignItems: 'center',
-  },
-  loanAmount: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  remainingAmount: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#DC2626',
-  },
-  amountLabel: {
-    fontSize: 11,
-    color: '#6B7280',
-    marginTop: 1,
-  },
-  deductionCell: {
-    flex: 2,
-    alignItems: 'center',
-  },
-  monthlyDeduction: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#059669',
-  },
-  progressCell: {
-    flex: 2,
-    alignItems: 'center',
-  },
-  progressBar: {
-    width: '80%',
-    height: 6,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 3,
-    marginBottom: 4,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#10B981',
-    borderRadius: 3,
-  },
-  progressText: {
-    fontSize: 11,
-    color: '#6B7280',
-  },
-  statusCell: {
-    flex: 1.5,
-    alignItems: 'center',
-  },
-  statusPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  actionsCell: {
-    flex: 1.5,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  actionButton: {
-    padding: 4,
-    marginHorizontal: 2,
-  },
-  actionIcon: {
-    fontSize: 16,
-    color: '#6B7280',
   },
 });
 

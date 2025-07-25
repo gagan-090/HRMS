@@ -60,9 +60,11 @@ const placeholderStyles = StyleSheet.create({
   },
 });
 
+// Import the actual MyProfileScreen
+import MyProfileScreen from '../screens/Profile/MyProfileScreen';
+
 // Placeholder screen components
 const RecruitmentAnalyticsScreen = () => <PlaceholderScreen title="Recruitment Analytics" />;
-const MyProfileScreen = () => <PlaceholderScreen title="My Profile" />;
 const SecuritySessionsScreen = () => <PlaceholderScreen title="Security & Sessions" />;
 
 const Drawer = createDrawerNavigator();

@@ -161,7 +161,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <View style={styles.sidebarWrapper}>
       <LinearGradient
-        colors={['blue', '#b5179e', '#7209b7']}
+        colors={['black', 'grey', 'white', 'purple']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradientBackground}

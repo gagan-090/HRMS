@@ -47,6 +47,7 @@ import BulkUploadScreen from './src/screens/Payroll/BulkUploadScreen';
 import SalaryRevisionScreen from './src/screens/Payroll/SalaryRevisionScreen';
 import TaxDeclarationsScreen from './src/screens/Payroll/TaxDeclarationsScreen';
 import CreateSalaryStructureScreen from './src/screens/Payroll/CreateSalaryStructureScreen';
+import MyProfileScreen from './src/screens/Profile/MyProfileScreen';
 
 // Placeholder screens for items that don't have a file yet
 const PlaceholderScreen = ({ routeName }: { routeName: string }) => {
@@ -153,7 +154,7 @@ const screenComponents: {
     title: 'Create Salary Structure',
   },
   'My Profile': {
-    component: () => <PlaceholderScreen routeName="My Profile" />,
+    component: MyProfileScreen,
     title: 'My Profile',
   },
   'Security & Sessions': {
@@ -235,6 +236,7 @@ const RootAppContent = () => {
         onMenuPress={toggleSidebar}
         title={headerTitle}
         showUserName={activeScreen === 'Dashboard'}
+        navigation={{ navigate: handleSetActiveScreen }}
       />
       <View style={styles(colors).content}>
         <CurrentScreenComponent navigate={handleSetActiveScreen} />
@@ -272,6 +274,7 @@ const RootAppContent = () => {
             onMenuPress={() => {}}
             title={headerTitle}
             showUserName={activeScreen === 'Dashboard'}
+            navigation={{ navigate: handleSetActiveScreen }}
           />
           <View style={styles(colors).content}>
             <CurrentScreenComponent navigate={handleSetActiveScreen} />

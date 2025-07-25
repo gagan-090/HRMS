@@ -26,12 +26,14 @@ interface HeaderProps {
   onMenuPress: () => void;
   title: string;
   showUserName?: boolean;
+  navigation?: any;
 }
 
 const Header: React.FC<HeaderProps> = ({
   onMenuPress,
   title,
   showUserName = false,
+  navigation,
 }) => {
   const { colors } = useTheme();
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -112,7 +114,11 @@ const Header: React.FC<HeaderProps> = ({
                 <CustomSvgIcon name="bell" color="#fff" size={widthPixel(26)} />
               </TouchableOpacity>
 
-              <View style={styles.profileDetails}>
+              <TouchableOpacity 
+                style={styles.profileDetails}
+                onPress={() => navigation?.navigate('My Profile')}
+                activeOpacity={0.7}
+              >
                 <View style={styles.avatarShadow}>
                   <View style={styles.avatar}>
                     <Text style={styles.avatarText}>AS</Text>
@@ -129,7 +135,7 @@ const Header: React.FC<HeaderProps> = ({
                   color="#fff"
                   size={widthPixel(14)}
                 />
-              </View>
+              </TouchableOpacity>
             </View>
           </>
         )}

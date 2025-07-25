@@ -18,10 +18,10 @@ const isTablet = () => SCREEN_WIDTH >= 600;
 // Enhanced normalize function for better mobile scaling
 function normalize(size: number, based: 'width' | 'height' = 'width') {
   const scale = based === 'height' ? heightBaseScale : widthBaseScale;
-  
+
   // Better scaling for different device sizes
   let finalScale = scale;
-  
+
   if (isSmallDevice()) {
     // Slightly reduce scaling for small devices to prevent cramping
     finalScale = Math.max(scale * 0.95, 0.85);
@@ -44,7 +44,7 @@ const fontPixel = (size: number) => {
   // Special font scaling for better readability
   const scale = heightBaseScale;
   let finalScale = scale;
-  
+
   if (isSmallDevice()) {
     finalScale = Math.max(scale * 0.9, 0.8);
   } else if (isTablet()) {
@@ -52,14 +52,16 @@ const fontPixel = (size: number) => {
   } else {
     finalScale = Math.min(scale, 1.05);
   }
-  
+
   const newSize = size * finalScale;
   return Math.round(PixelRatio.roundToNearestPixel(newSize));
 };
 
 // Additional responsive utilities for mobile-first design
-const responsiveWidth = (percentage: number) => (SCREEN_WIDTH * percentage) / 100;
-const responsiveHeight = (percentage: number) => (SCREEN_HEIGHT * percentage) / 100;
+const responsiveWidth = (percentage: number) =>
+  (SCREEN_WIDTH * percentage) / 100;
+const responsiveHeight = (percentage: number) =>
+  (SCREEN_HEIGHT * percentage) / 100;
 
 // Spacing utilities for consistent mobile layout
 const spacing = {
